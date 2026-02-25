@@ -195,8 +195,11 @@ function showTooltip(code, x, y) {
   const scaleX = svgRect.width / 905;
   const scaleY = svgRect.height / 295;
 
-  tooltip.style.left = (x * scaleX + svgRect.left - mapRect.left - 80) + 'px';
-  tooltip.style.top  = (y * scaleY + svgRect.top  - mapRect.top  + 10) + 'px';
+  const rawLeft = x * scaleX + svgRect.left - mapRect.left - 80;
+  const rawTop  = y * scaleY + svgRect.top  - mapRect.top  + 10;
+  const maxLeft = mapRect.width - 175;
+  tooltip.style.left = Math.max(4, Math.min(rawLeft, maxLeft)) + 'px';
+  tooltip.style.top  = Math.min(rawTop, mapRect.height - 120) + 'px';
 }
 
 function hideTooltip() {
@@ -449,9 +452,10 @@ function showElectionResults(results) {
 
   verdict.innerHTML = verdictHTML;
 
-  // Button
+  // Button — check if this was the LAST election
   const continueBtn = document.getElementById('continue-btn');
-  if (G.isGameOver()) {
+  const isLastElection = G.electionIndex >= ELECTION_SCHEDULE.length - 1;
+  if (isLastElection) {
     continueBtn.textContent = 'See Final Results →';
     continueBtn.onclick = showGameOver;
   } else {
