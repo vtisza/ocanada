@@ -372,3 +372,8 @@ class GameEngine {
     return { score: s, grade, comment, timesPM: this.timesPM, totalSeats: this.totalPlayerSeats };
   }
 }
+
+// CommonJS export for Node/Jest (browser ignores — `module` is undefined there)
+if (typeof module !== 'undefined') {
+  exports.GameEngine = GameEngine;
+}
