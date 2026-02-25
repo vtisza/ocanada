@@ -642,3 +642,14 @@ const POLICY_CARDS = [
     ],
   },
 ];
+
+// CommonJS exports for Node/Jest (browser ignores — `module` is undefined there)
+if (typeof module !== 'undefined') {
+  exports.PARTIES           = PARTIES;
+  exports.PROVINCES         = PROVINCES;
+  exports.REGIONS           = REGIONS;
+  exports.STARTING_SUPPORT  = STARTING_SUPPORT;
+  exports.ELECTION_SCHEDULE = ELECTION_SCHEDULE;
+  exports.EVENTS            = EVENTS;
+  exports.POLICY_CARDS      = POLICY_CARDS;
+}

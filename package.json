@@ -1,0 +1,11 @@
+{
+  "name": "ocanada",
+  "version": "1.0.0",
+  "description": "O Canada: Power & Politics in the True North — browser game",
+  "scripts": {
+    "test": "jest --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
