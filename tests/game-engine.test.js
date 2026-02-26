@@ -412,7 +412,7 @@ describe('GameEngine.applyEvent', () => {
     // LPC dominates everywhere → LEADER should be LPC
     for (const code of Object.keys(PROVINCES)) {
       g.provinces[code].support.LPC = 60;
-      g.provinces[code].support.CPC = 25;
+      g.provinces[code].support.CPC = 30;
       g.provinces[code].support.NDP = 10;
       g.provinces[code].support.BQ = 0;
     }

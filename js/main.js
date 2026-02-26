@@ -118,7 +118,7 @@ function buildMap() {
       g.appendChild(dot);
     }
 
-    g.addEventListener('click', () => onProvinceClick(code));
+    g.addEventListener('click', () => onProvinceClick(code, x + w / 2, y + h));
     g.addEventListener('mouseenter', () => showTooltip(code, x + w / 2, y + h));
     g.addEventListener('mouseleave', hideTooltip);
 
@@ -376,7 +376,7 @@ function enterCampaign() {
   document.getElementById('run-election-btn').onclick = triggerElection;
 }
 
-function onProvinceClick(code) {
+function onProvinceClick(code, x, y) {
   if (!G || G.phase !== 'campaign') return;
 
   const result = G.campaignInProvince(code);
@@ -387,6 +387,10 @@ function onProvinceClick(code) {
   updateCPDisplay();
   renderGame();
   showMessage(`Campaigning in ${PROVINCES[code].name}! (+7% support)`, 'info');
+
+  if (x !== undefined && y !== undefined && !document.getElementById('province-tooltip').classList.contains('hidden')) {
+    showTooltip(code, x, y);
+  }
 }
 
 function updateCPDisplay() {
