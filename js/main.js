@@ -119,6 +119,10 @@ function buildMap() {
     }
 
     g.addEventListener('click', () => onProvinceClick(code, x + w / 2, y + h));
+    g.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      onProvinceRightClick(code, x + w / 2, y + h);
+    });
     g.addEventListener('mouseenter', () => showTooltip(code, x + w / 2, y + h));
     g.addEventListener('mouseleave', hideTooltip);
 
@@ -412,6 +416,21 @@ function onProvinceClick(code, x, y) {
 
   if (x !== undefined && y !== undefined && !document.getElementById('province-tooltip').classList.contains('hidden')) {
     showTooltip(code, x, y);
+  }
+}
+
+function onProvinceRightClick(code, x, y) {
+  if (!G || G.phase !== 'campaign' || pendingPolicyChoice) return;
+
+  if (G.uncampaignInProvince(code)) {
+    updateCPDisplay();
+    updatePolicies();
+    renderGame();
+    showMessage(`Recalled campaign from ${PROVINCES[code].name}! (+2 CP)`, 'info');
+
+    if (x !== undefined && y !== undefined && !document.getElementById('province-tooltip').classList.contains('hidden')) {
+      showTooltip(code, x, y);
+    }
   }
 }
 

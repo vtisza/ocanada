@@ -1,308 +1,312 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>O Canada: Power &amp; Politics, 1950–2030</title>
   <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
 
-<!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      SETUP SCREEN
 ══════════════════════════════════════════ -->
-<div id="screen-setup" class="screen">
-  <div class="setup-container">
-    <div class="maple-leaf">🍁</div>
-    <h1>O Canada</h1>
-    <h2>Power &amp; Politics in the True North</h2>
-    <p class="subtitle">A Solitaire Political Simulation · 1950–2030 · 25 Federal Elections</p>
+  <div id="screen-setup" class="screen">
+    <div class="setup-container">
+      <div class="maple-leaf">🍁</div>
+      <h1>O Canada</h1>
+      <h2>Power &amp; Politics in the True North</h2>
+      <p class="subtitle">A Solitaire Political Simulation · 1950–2030 · 25 Federal Elections</p>
 
-    <div class="setup-section">
-      <h3>Choose Your Party</h3>
-      <div class="party-select">
+      <div class="setup-section">
+        <h3>Choose Your Party</h3>
+        <div class="party-select">
 
-        <div class="party-card" data-party="LPC">
-          <div class="party-stripe lpc-stripe"></div>
-          <div class="party-card-body">
-            <div class="party-name">Liberal Party</div>
-            <div class="party-ideology">Centre / Centre-Left</div>
-            <p class="party-blurb">
-              Canada's "natural governing party." Strong in Ontario, Quebec,
-              and Atlantic Canada. Champions social programs, multiculturalism,
-              and national unity.
-            </p>
-            <div class="party-strongholds">
-              <span>Strongholds:</span> ON · QC · NL · Atlantic
+          <div class="party-card" data-party="LPC">
+            <div class="party-stripe lpc-stripe"></div>
+            <div class="party-card-body">
+              <div class="party-name">Liberal Party</div>
+              <div class="party-ideology">Centre / Centre-Left</div>
+              <p class="party-blurb">
+                Canada's "natural governing party." Strong in Ontario, Quebec,
+                and Atlantic Canada. Champions social programs, multiculturalism,
+                and national unity.
+              </p>
+              <div class="party-strongholds">
+                <span>Strongholds:</span> ON · QC · NL · Atlantic
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="party-card" data-party="CPC">
-          <div class="party-stripe cpc-stripe"></div>
-          <div class="party-card-body">
-            <div class="party-name">Conservative Party</div>
-            <div class="party-ideology">Centre-Right</div>
-            <p class="party-blurb">
-              Historically the Progressive Conservatives, then the united
-              Conservative Party. Strong in Western Canada and rural Ontario.
-              Focuses on fiscal responsibility and free enterprise.
-            </p>
-            <div class="party-strongholds">
-              <span>Strongholds:</span> AB · SK · MB · Rural ON
+          <div class="party-card" data-party="CPC">
+            <div class="party-stripe cpc-stripe"></div>
+            <div class="party-card-body">
+              <div class="party-name">Conservative Party</div>
+              <div class="party-ideology">Centre-Right</div>
+              <p class="party-blurb">
+                Historically the Progressive Conservatives, then the united
+                Conservative Party. Strong in Western Canada and rural Ontario.
+                Focuses on fiscal responsibility and free enterprise.
+              </p>
+              <div class="party-strongholds">
+                <span>Strongholds:</span> AB · SK · MB · Rural ON
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="party-card" data-party="NDP">
-          <div class="party-stripe ndp-stripe"></div>
-          <div class="party-card-body">
-            <div class="party-name">NDP / CCF</div>
-            <div class="party-ideology">Centre-Left / Left</div>
-            <p class="party-blurb">
-              Founded as the Co-operative Commonwealth Federation in 1932,
-              reborn as the NDP in 1961. Champions workers' rights, universal
-              healthcare, and progressive policies.
-            </p>
-            <div class="party-strongholds">
-              <span>Strongholds:</span> SK · BC · MB · Northern ON
+          <div class="party-card" data-party="NDP">
+            <div class="party-stripe ndp-stripe"></div>
+            <div class="party-card-body">
+              <div class="party-name">NDP / CCF</div>
+              <div class="party-ideology">Centre-Left / Left</div>
+              <p class="party-blurb">
+                Founded as the Co-operative Commonwealth Federation in 1932,
+                reborn as the NDP in 1961. Champions workers' rights, universal
+                healthcare, and progressive policies.
+              </p>
+              <div class="party-strongholds">
+                <span>Strongholds:</span> SK · BC · MB · Northern ON
+              </div>
             </div>
           </div>
-        </div>
 
+        </div>
       </div>
-    </div>
 
-    <div class="setup-section">
-      <h3>Difficulty</h3>
-      <div class="difficulty-select">
-        <button class="diff-btn" data-diff="easy">
-          <strong>Easy</strong><br>
-          <small>14 campaign points · Weak AI</small>
-        </button>
-        <button class="diff-btn active" data-diff="normal">
-          <strong>Normal</strong><br>
-          <small>10 campaign points · Fair AI</small>
-        </button>
-        <button class="diff-btn" data-diff="hard">
-          <strong>Hard</strong><br>
-          <small>7 campaign points · Strong AI</small>
-        </button>
+      <div class="setup-section">
+        <h3>Difficulty</h3>
+        <div class="difficulty-select">
+          <button class="diff-btn" data-diff="easy">
+            <strong>Easy</strong><br>
+            <small>14 campaign points · Weak AI</small>
+          </button>
+          <button class="diff-btn active" data-diff="normal">
+            <strong>Normal</strong><br>
+            <small>10 campaign points · Fair AI</small>
+          </button>
+          <button class="diff-btn" data-diff="hard">
+            <strong>Hard</strong><br>
+            <small>7 campaign points · Strong AI</small>
+          </button>
+        </div>
       </div>
-    </div>
 
-    <button id="start-game-btn" class="btn-primary" disabled>
-      Begin Campaign →
-    </button>
+      <button id="start-game-btn" class="btn-primary" disabled>
+        Begin Campaign →
+      </button>
+    </div>
   </div>
-</div>
 
-<!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      MAIN GAME SCREEN
 ══════════════════════════════════════════ -->
-<div id="screen-game" class="screen">
+  <div id="screen-game" class="screen">
 
-  <!-- Header -->
-  <header id="game-header">
-    <div class="header-left">
-      <span class="header-title">🍁 O Canada</span>
-    </div>
-    <div class="header-center">
-      <span id="current-year" class="year-display">1953</span>
-      <span class="election-label">Federal Election</span>
-    </div>
-    <div class="header-right">
-      <div id="player-badge" class="player-badge">
-        <span id="player-party-name">Liberal</span>
-        <span id="player-seats-display" class="seats-count">~0 seats</span>
+    <!-- Header -->
+    <header id="game-header">
+      <div class="header-left">
+        <span class="header-title">🍁 O Canada</span>
       </div>
-    </div>
-  </header>
-
-  <!-- National polling bar -->
-  <div id="polling-bar" class="polling-bar"></div>
-
-  <!-- Main content: map + action panel -->
-  <div id="game-content">
-
-    <!-- Map panel -->
-    <div id="map-panel">
-      <svg id="canada-map" viewBox="0 0 905 295" xmlns="http://www.w3.org/2000/svg"
-           preserveAspectRatio="xMidYMid meet">
-      </svg>
-      <div id="province-tooltip" class="tooltip hidden"></div>
-      <div class="map-legend">
-        <div class="legend-title">Province colours show leading party</div>
-        <div class="legend-row">
-          <span class="legend-dot" style="background:#D71920"></span> Liberal
-          <span class="legend-dot" style="background:#1A4FBA"></span> Conservative
-          <span class="legend-dot" style="background:#F37021"></span> NDP
-          <span class="legend-dot" style="background:#00ADEF"></span> Bloc Québécois
+      <div class="header-center">
+        <span id="current-year" class="year-display">1953</span>
+        <span class="election-label">Federal Election</span>
+      </div>
+      <div class="header-right">
+        <div id="player-badge" class="player-badge">
+          <span id="player-party-name">Liberal</span>
+          <span id="player-seats-display" class="seats-count">~0 seats</span>
         </div>
       </div>
-    </div>
+    </header>
 
-    <!-- Action / info panel -->
-    <div id="action-panel">
+    <!-- National polling bar -->
+    <div id="polling-bar" class="polling-bar"></div>
 
-      <!-- Phase indicator -->
-      <div id="phase-display" class="panel-section">
-        <h3 id="phase-title">Campaign Phase</h3>
-        <p id="phase-description">Allocate your campaign points across provinces before the election.</p>
-      </div>
+    <!-- Main content: map + action panel -->
+    <div id="game-content">
 
-      <!-- Campaign controls -->
-      <div id="campaign-section" class="panel-section">
-        <div class="cp-row">
-          <span class="cp-label">Campaign Points</span>
-          <span id="cp-remaining" class="cp-value">10</span>
-        </div>
-        <p class="cp-hint">Click a province on the map to campaign there.<br>
-          <strong>Cost: 2 CP · Boost: +7% support</strong><br>
-          Max 3 tokens per province.</p>
-      </div>
-
-      <!-- Policy Cards -->
-      <div id="policies-section" class="panel-section">
-        <div class="cp-row">
-          <span class="cp-label">Policy Cards</span>
-        </div>
-        <p class="cp-hint">Play powerful one-time policies.</p>
-        <div id="policies-list" class="policies-list"></div>
-      </div>
-
-      <!-- Event card -->
-      <div id="event-section" class="panel-section hidden">
-        <div class="event-card">
-          <div class="event-header">
-            <span class="event-tag">Breaking News</span>
-            <span id="event-year-label" class="event-year">1953</span>
+      <!-- Map panel -->
+      <div id="map-panel">
+        <svg id="canada-map" viewBox="0 0 905 295" xmlns="http://www.w3.org/2000/svg"
+          preserveAspectRatio="xMidYMid meet">
+        </svg>
+        <div id="province-tooltip" class="tooltip hidden"></div>
+        <div class="map-legend">
+          <div class="legend-title">Province colours show leading party</div>
+          <div class="legend-row">
+            <span class="legend-dot" style="background:#D71920"></span> Liberal
+            <span class="legend-dot" style="background:#1A4FBA"></span> Conservative
+            <span class="legend-dot" style="background:#F37021"></span> NDP
+            <span class="legend-dot" style="background:#00ADEF"></span> Bloc Québécois
           </div>
-          <h4 id="event-title">Event</h4>
-          <p id="event-description"></p>
-          <div id="event-effects" class="event-effects"></div>
         </div>
-        <button id="event-dismiss-btn" class="btn-secondary">Acknowledge →</button>
       </div>
 
-      <!-- Current standings -->
-      <div id="standings-section" class="panel-section">
-        <h4>Province Standings</h4>
-        <div id="province-standings" class="standings-list"></div>
-      </div>
+      <!-- Action / info panel -->
+      <div id="action-panel">
 
-      <!-- Action buttons -->
-      <div id="action-buttons" class="panel-section">
-        <div id="game-message" class="game-message hidden"></div>
-        <button id="run-election-btn" class="btn-primary run-btn">
-          Run the Election →
-        </button>
-      </div>
+        <!-- Phase indicator -->
+        <div id="phase-display" class="panel-section">
+          <h3 id="phase-title">Campaign Phase</h3>
+          <p id="phase-description">Allocate your campaign points across provinces before the election.</p>
+        </div>
 
+        <!-- Campaign controls -->
+        <div id="campaign-section" class="panel-section">
+          <div class="cp-row">
+            <span class="cp-label">Campaign Points</span>
+            <span id="cp-remaining" class="cp-value">10</span>
+          </div>
+          <p class="cp-hint">Click a province on the map to campaign there.<br>
+            <strong>Cost: 2 CP · Boost: +7% support</strong><br>
+            Max 3 tokens per province. <em>Right-click to undo.</em>
+          </p>
+        </div>
+
+        <!-- Policy Cards -->
+        <div id="policies-section" class="panel-section">
+          <div class="cp-row">
+            <span class="cp-label">Policy Cards</span>
+          </div>
+          <p class="cp-hint">Play powerful one-time policies.</p>
+          <div id="policies-list" class="policies-list"></div>
+        </div>
+
+        <!-- Event card -->
+        <div id="event-section" class="panel-section hidden">
+          <div class="event-card">
+            <div class="event-header">
+              <span class="event-tag">Breaking News</span>
+              <span id="event-year-label" class="event-year">1953</span>
+            </div>
+            <h4 id="event-title">Event</h4>
+            <p id="event-description"></p>
+            <div id="event-effects" class="event-effects"></div>
+          </div>
+          <button id="event-dismiss-btn" class="btn-secondary">Acknowledge →</button>
+        </div>
+
+        <!-- Current standings -->
+        <div id="standings-section" class="panel-section">
+          <h4>Province Standings</h4>
+          <div id="province-standings" class="standings-list"></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div id="action-buttons" class="panel-section">
+          <div id="game-message" class="game-message hidden"></div>
+          <button id="run-election-btn" class="btn-primary run-btn">
+            Run the Election →
+          </button>
+        </div>
+
+      </div>
     </div>
+
+    <!-- Score bar -->
+    <footer id="score-bar">
+      <div class="score-item">
+        <span class="score-label">Cumulative Seats</span>
+        <span id="total-seats" class="score-value">0</span>
+      </div>
+      <div class="score-item">
+        <span class="score-label">Times as PM</span>
+        <span id="times-pm" class="score-value">0</span>
+      </div>
+      <div class="score-item">
+        <span class="score-label">Score</span>
+        <span id="current-score" class="score-value">0</span>
+      </div>
+      <div class="score-item">
+        <span class="score-label">Election</span>
+        <span id="election-count" class="score-value">1/25</span>
+      </div>
+    </footer>
+
   </div>
 
-  <!-- Score bar -->
-  <footer id="score-bar">
-    <div class="score-item">
-      <span class="score-label">Cumulative Seats</span>
-      <span id="total-seats" class="score-value">0</span>
-    </div>
-    <div class="score-item">
-      <span class="score-label">Times as PM</span>
-      <span id="times-pm" class="score-value">0</span>
-    </div>
-    <div class="score-item">
-      <span class="score-label">Score</span>
-      <span id="current-score" class="score-value">0</span>
-    </div>
-    <div class="score-item">
-      <span class="score-label">Election</span>
-      <span id="election-count" class="score-value">1/25</span>
-    </div>
-  </footer>
-
-</div>
-
-<!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      ELECTION RESULTS SCREEN
 ══════════════════════════════════════════ -->
-<div id="screen-results" class="screen">
-  <div class="results-container">
+  <div id="screen-results" class="screen">
+    <div class="results-container">
 
-    <h2 id="results-year">1953 Federal Election Results</h2>
+      <h2 id="results-year">1953 Federal Election Results</h2>
 
-    <!-- Seat bar -->
-    <div class="seat-bar-wrap">
-      <div id="results-seat-bar" class="results-seat-bar"></div>
-      <div class="seat-bar-labels">
-        <span>0</span>
-        <span class="majority-label">170 (majority)</span>
-        <span>338</span>
+      <!-- Seat bar -->
+      <div class="seat-bar-wrap">
+        <div id="results-seat-bar" class="results-seat-bar"></div>
+        <div class="seat-bar-labels">
+          <span>0</span>
+          <span class="majority-label">170 (majority)</span>
+          <span>338</span>
+        </div>
       </div>
+
+      <!-- Province grid -->
+      <h3 class="section-title">Province Results</h3>
+      <div id="results-provinces" class="results-provinces"></div>
+
+      <!-- Verdict -->
+      <div id="results-verdict" class="results-verdict"></div>
+
+      <!-- Continue -->
+      <button id="continue-btn" class="btn-primary">Continue →</button>
     </div>
-
-    <!-- Province grid -->
-    <h3 class="section-title">Province Results</h3>
-    <div id="results-provinces" class="results-provinces"></div>
-
-    <!-- Verdict -->
-    <div id="results-verdict" class="results-verdict"></div>
-
-    <!-- Continue -->
-    <button id="continue-btn" class="btn-primary">Continue →</button>
   </div>
-</div>
 
-<!-- ══════════════════════════════════════════
+  <!-- ══════════════════════════════════════════
      GAME OVER SCREEN
 ══════════════════════════════════════════ -->
-<div id="screen-gameover" class="screen">
-  <div class="gameover-container">
+  <div id="screen-gameover" class="screen">
+    <div class="gameover-container">
 
-    <div class="maple-leaf">🍁</div>
-    <h1>Campaign Complete!</h1>
-    <h2>1953 – 2030 · 25 Federal Elections</h2>
+      <div class="maple-leaf">🍁</div>
+      <h1>Campaign Complete!</h1>
+      <h2>1953 – 2030 · 25 Federal Elections</h2>
 
-    <div class="final-score-box">
-      <div class="grade-display" id="final-grade">B</div>
-      <div class="comment-display" id="final-comment">Major Player</div>
-      <div class="score-big">
-        <span class="score-num" id="final-score-value">0</span>
-        <span class="score-lbl">points</span>
-      </div>
-      <div class="final-stats">
-        <div class="fstat">
-          <span class="fstat-val" id="final-pm-count">0</span>
-          <span class="fstat-lbl">Times as Prime Minister</span>
+      <div class="final-score-box">
+        <div class="grade-display" id="final-grade">B</div>
+        <div class="comment-display" id="final-comment">Major Player</div>
+        <div class="score-big">
+          <span class="score-num" id="final-score-value">0</span>
+          <span class="score-lbl">points</span>
         </div>
-        <div class="fstat">
-          <span class="fstat-val" id="final-total-seats">0</span>
-          <span class="fstat-lbl">Total Seats Won</span>
+        <div class="final-stats">
+          <div class="fstat">
+            <span class="fstat-val" id="final-pm-count">0</span>
+            <span class="fstat-lbl">Times as Prime Minister</span>
+          </div>
+          <div class="fstat">
+            <span class="fstat-val" id="final-total-seats">0</span>
+            <span class="fstat-lbl">Total Seats Won</span>
+          </div>
         </div>
       </div>
+
+      <h3 class="section-title">Election History</h3>
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th>Your Seats</th>
+            <th>Winner</th>
+            <th>Gov't Type</th>
+            <th>PM?</th>
+          </tr>
+        </thead>
+        <tbody id="history-tbody"></tbody>
+      </table>
+
+      <button id="play-again-btn" class="btn-primary">Play Again</button>
     </div>
-
-    <h3 class="section-title">Election History</h3>
-    <table class="history-table">
-      <thead>
-        <tr>
-          <th>Year</th>
-          <th>Your Seats</th>
-          <th>Winner</th>
-          <th>Gov't Type</th>
-          <th>PM?</th>
-        </tr>
-      </thead>
-      <tbody id="history-tbody"></tbody>
-    </table>
-
-    <button id="play-again-btn" class="btn-primary">Play Again</button>
   </div>
-</div>
 
-<script src="js/data.js"></script>
-<script src="js/game.js"></script>
-<script src="js/main.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/main.js"></script>
 </body>
+
 </html>
