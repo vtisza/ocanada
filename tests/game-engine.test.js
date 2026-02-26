@@ -3,8 +3,8 @@
  * Unit tests for the GameEngine class.
  */
 
-const TOTAL_SEATS    = 338;
-const MAJORITY       = 170;
+const TOTAL_SEATS = 338;
+const MAJORITY = 170;
 const PLAYER_PARTIES = ['LPC', 'CPC', 'NDP'];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -34,9 +34,9 @@ describe('GameEngine constructor', () => {
   });
 
   test.each([
-    ['easy',   14, 6],
+    ['easy', 14, 6],
     ['normal', 10, 10],
-    ['hard',   7,  14],
+    ['hard', 7, 14],
   ])('difficulty %s gives player %i CP and AI %i CP', (diff, playerCP, aiCP) => {
     const g = makeEngine('LPC', diff);
     expect(g.cpRemaining).toBe(playerCP);
@@ -128,7 +128,7 @@ describe('GameEngine.calculateSeats', () => {
     const g = makeEngine();
     g.year = 2000;
     // Give BQ dominant support in QC
-    g.provinces.QC.support.BQ  = 80;
+    g.provinces.QC.support.BQ = 80;
     g.provinces.QC.support.LPC = 10;
     g.provinces.QC.support.CPC = 5;
     g.provinces.QC.support.NDP = 5;
@@ -142,7 +142,7 @@ describe('GameEngine.calculateSeats', () => {
     g.provinces.ON.support.LPC = 70;
     g.provinces.ON.support.CPC = 20;
     g.provinces.ON.support.NDP = 10;
-    g.provinces.ON.support.BQ  = 0;
+    g.provinces.ON.support.BQ = 0;
     const seats = g.calculateSeats('ON');
     const totalON = PROVINCES.ON.seats;
     // With FPTP, 70% support should yield well over 70% of seats
@@ -165,7 +165,7 @@ describe('GameEngine.runElection', () => {
   // Pin Math.random to avoid flakiness in AI-run elections
   let mockRandom;
   beforeEach(() => { mockRandom = jest.spyOn(Math, 'random').mockReturnValue(0.5); });
-  afterEach(()  => { mockRandom.mockRestore(); });
+  afterEach(() => { mockRandom.mockRestore(); });
 
   test(`national seat total is always ${TOTAL_SEATS}`, () => {
     const g = makeEngine();
@@ -187,7 +187,7 @@ describe('GameEngine.runElection', () => {
       g.provinces[code].support.LPC = 90;
       g.provinces[code].support.CPC = 5;
       g.provinces[code].support.NDP = 5;
-      g.provinces[code].support.BQ  = 0;
+      g.provinces[code].support.BQ = 0;
     }
     const results = g.runElection();
     expect(results.winnerSeats).toBeGreaterThanOrEqual(MAJORITY);
@@ -196,12 +196,24 @@ describe('GameEngine.runElection', () => {
 
   test('government is "minority" when winner has < 170 seats', () => {
     const g = makeEngine('LPC');
-    // Even split → no one gets majority
+    // Split provinces so no one gets a majority (winner gets 163 seats)
     for (const code of Object.keys(PROVINCES)) {
-      g.provinces[code].support.LPC = 34;
-      g.provinces[code].support.CPC = 33;
-      g.provinces[code].support.NDP = 33;
-      g.provinces[code].support.BQ  = 0;
+      if (code === 'ON' || code === 'BC') {
+        g.provinces[code].support.LPC = 50;
+        g.provinces[code].support.CPC = 10;
+        g.provinces[code].support.NDP = 10;
+        g.provinces[code].support.BQ = 0;
+      } else if (code === 'QC' || code === 'AB') {
+        g.provinces[code].support.LPC = 10;
+        g.provinces[code].support.CPC = 50;
+        g.provinces[code].support.NDP = 10;
+        g.provinces[code].support.BQ = 0;
+      } else {
+        g.provinces[code].support.LPC = 10;
+        g.provinces[code].support.CPC = 10;
+        g.provinces[code].support.NDP = 50;
+        g.provinces[code].support.BQ = 0;
+      }
     }
     const results = g.runElection();
     expect(results.winnerSeats).toBeLessThan(MAJORITY);
@@ -303,7 +315,7 @@ describe('GameEngine.campaignInProvince', () => {
   test('does not modify state when CP is insufficient', () => {
     const g = makeEngine();
     g.cpRemaining = 1;
-    const tokensBefore  = g.provinces.ON.campaignTokens;
+    const tokensBefore = g.provinces.ON.campaignTokens;
     const supportBefore = g.provinces.ON.support.LPC;
     g.campaignInProvince('ON');
     expect(g.provinces.ON.campaignTokens).toBe(tokensBefore);
@@ -402,7 +414,7 @@ describe('GameEngine.applyEvent', () => {
       g.provinces[code].support.LPC = 60;
       g.provinces[code].support.CPC = 25;
       g.provinces[code].support.NDP = 10;
-      g.provinces[code].support.BQ  = 0;
+      g.provinces[code].support.BQ = 0;
     }
     const before = g.provinces.ON.support.LPC;
     g.applyEvent({
@@ -479,7 +491,7 @@ describe('GameEngine.applyEvent', () => {
 
 describe('GameEngine.drawEvents', () => {
   beforeEach(() => jest.spyOn(Math, 'random').mockReturnValue(0.3));
-  afterEach(()  => jest.restoreAllMocks());
+  afterEach(() => jest.restoreAllMocks());
 
   test('returns only events whose year range includes the current year', () => {
     const g = makeEngine();
@@ -528,7 +540,7 @@ describe('GameEngine.drawEvents', () => {
 
 describe('GameEngine.advance', () => {
   beforeEach(() => jest.spyOn(Math, 'random').mockReturnValue(0.5));
-  afterEach(()  => jest.restoreAllMocks());
+  afterEach(() => jest.restoreAllMocks());
 
   test('returns true when there are more elections', () => {
     const g = makeEngine();
@@ -610,14 +622,14 @@ describe('GameEngine.getLeadingParty', () => {
     g.provinces.BC.support.LPC = 10;
     g.provinces.BC.support.CPC = 60;
     g.provinces.BC.support.NDP = 20;
-    g.provinces.BC.support.BQ  = 0;
+    g.provinces.BC.support.BQ = 0;
     expect(g.getLeadingParty('BC')).toBe('CPC');
   });
 
   test('BQ cannot lead outside QC even with high support', () => {
     const g = makeEngine();
     g.year = 2000;
-    g.provinces.ON.support.BQ  = 999;
+    g.provinces.ON.support.BQ = 999;
     g.provinces.ON.support.LPC = 1;
     g.provinces.ON.support.CPC = 1;
     g.provinces.ON.support.NDP = 1;
@@ -638,7 +650,7 @@ describe('GameEngine.getLeadingParty', () => {
 
 describe('GameEngine.getNationalTotals', () => {
   beforeEach(() => jest.spyOn(Math, 'random').mockReturnValue(0.5));
-  afterEach(()  => jest.restoreAllMocks());
+  afterEach(() => jest.restoreAllMocks());
 
   test(`seat totals sum to ${TOTAL_SEATS}`, () => {
     const g = makeEngine();
@@ -665,8 +677,8 @@ describe('GameEngine.getFinalScore', () => {
     [2000, 'A', 'Dominant Force'],
     [1500, 'B', 'Major Player'],
     [1000, 'C', 'Contender'],
-    [500,  'D', 'Minor Party'],
-    [0,    'F', 'Fringe Party'],
+    [500, 'D', 'Minor Party'],
+    [0, 'F', 'Fringe Party'],
   ];
 
   test.each(cases)('score %i → grade %s (%s)', (score, grade, comment) => {
@@ -740,7 +752,7 @@ describe('GameEngine._getLeadingOpponentParty', () => {
       g.provinces[code].support.CPC = 90;
       g.provinces[code].support.LPC = 5;
       g.provinces[code].support.NDP = 5;
-      g.provinces[code].support.BQ  = 0;
+      g.provinces[code].support.BQ = 0;
     }
     expect(g._getLeadingOpponentParty()).toBe('CPC');
   });

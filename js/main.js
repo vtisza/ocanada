@@ -171,8 +171,20 @@ function showTooltip(code, x, y) {
   const prov = PROVINCES[code];
   const support = G.provinces[code].support;
 
+  const validParties = Object.keys(PARTIES).filter(p => {
+    if (p === 'BQ' && code !== 'QC') return false;
+    if (PARTIES[p].establishedYear && G.year < PARTIES[p].establishedYear) return false;
+    return true;
+  });
+
+  let totalSupport = 0;
+  for (const p of validParties) {
+    totalSupport += Math.max(0, support[p] || 0);
+  }
+
   const parties = Object.entries(support)
-    .filter(([p]) => p !== 'BQ' || code === 'QC')
+    .filter(([p]) => validParties.includes(p))
+    .map(([p, v]) => [p, totalSupport > 0 ? (Math.max(0, v) / totalSupport) * 100 : 0])
     .sort((a, b) => b[1] - a[1]);
 
   let html = `<strong>${prov.name}</strong><br><em>${prov.seats} seats</em><hr>`;
@@ -196,10 +208,10 @@ function showTooltip(code, x, y) {
   const scaleY = svgRect.height / 295;
 
   const rawLeft = x * scaleX + svgRect.left - mapRect.left - 80;
-  const rawTop  = y * scaleY + svgRect.top  - mapRect.top  + 10;
+  const rawTop = y * scaleY + svgRect.top - mapRect.top + 10;
   const maxLeft = mapRect.width - 175;
   tooltip.style.left = Math.max(4, Math.min(rawLeft, maxLeft)) + 'px';
-  tooltip.style.top  = Math.min(rawTop, mapRect.height - 120) + 'px';
+  tooltip.style.top = Math.min(rawTop, mapRect.height - 120) + 'px';
 }
 
 function hideTooltip() {
@@ -262,7 +274,21 @@ function updateStandings() {
 
   for (const [code, data] of sortedProvinces) {
     const leader = G.getLeadingParty(code);
-    const support = G.provinces[code].support[leader] || 0;
+    const provSupport = G.provinces[code].support;
+    const support = provSupport[leader] || 0;
+
+    const validParties = Object.keys(PARTIES).filter(p => {
+      if (p === 'BQ' && code !== 'QC') return false;
+      if (PARTIES[p].establishedYear && G.year < PARTIES[p].establishedYear) return false;
+      return true;
+    });
+
+    let totalSupport = 0;
+    for (const p of validParties) {
+      totalSupport += Math.max(0, provSupport[p] || 0);
+    }
+    const pct = totalSupport > 0 ? (Math.max(0, support) / totalSupport) * 100 : 0;
+
     const color = PARTIES[leader]?.color || '#555';
 
     const row = document.createElement('div');
@@ -271,7 +297,7 @@ function updateStandings() {
       <span class="st-dot" style="background:${color}"></span>
       <span class="st-prov">${code}</span>
       <span class="st-party" style="color:${color}">${PARTIES[leader]?.shortName || leader}</span>
-      <span class="st-pct">${Math.round(support)}%</span>
+      <span class="st-pct">${Math.round(pct)}%</span>
       <span class="st-seats">${data.seats}s</span>
     `;
     container.appendChild(row);
@@ -310,7 +336,7 @@ function showEventCard(event) {
   efxEl.innerHTML = '';
   for (const eff of event.effects) {
     const partyId = eff.party === 'SELF' ? G.playerParty :
-                    eff.party === 'LEADER' ? 'CPC' : eff.party;
+      eff.party === 'LEADER' ? 'CPC' : eff.party;
     const partyName = PARTIES[partyId]?.shortName || eff.party;
     const target = eff.province || eff.region || 'all';
     const sign = eff.delta > 0 ? '+' : '';

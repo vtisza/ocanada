@@ -55,7 +55,6 @@ html, body {
 ══════════════════════════════════════════ */
 #screen-setup {
   background: radial-gradient(ellipse at top, #1a2a1a 0%, #0d1117 60%);
-  display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 30px 16px 40px;
@@ -196,7 +195,6 @@ html, body {
    MAIN GAME SCREEN
 ══════════════════════════════════════════ */
 #screen-game {
-  display: grid;
   grid-template-rows: auto auto 1fr auto;
   height: 100vh;
   overflow: hidden;

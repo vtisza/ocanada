@@ -23,6 +23,7 @@ class GameEngine {
         campaignTokens: 0,
       };
     }
+    this._normalizeAll();
 
     // Deck of events (shuffle a copy)
     this.eventDeck = this._buildEventDeck();
@@ -67,36 +68,21 @@ class GameEngine {
       return true;
     });
 
-    const vals = {};
-    let total = 0;
+    let leadingParty = null;
+    let maxSupport = 0;
+
     for (const p of validParties) {
       const s = Math.max(0, support[p] || 0);
-      vals[p] = Math.pow(s, 1.6); // FPTP exaggeration
-      total += vals[p];
+      if (s > maxSupport) {
+        maxSupport = s;
+        leadingParty = p;
+      }
     }
-
-    if (total === 0) return {};
 
     const seats = {};
-    let allocated = 0;
-    const totalSeats = prov.seats;
-
-    // Proportional allocation with rounding
-    for (const p of validParties) {
-      seats[p] = Math.floor((vals[p] / total) * totalSeats);
-      allocated += seats[p];
+    if (leadingParty) {
+      seats[leadingParty] = prov.seats;
     }
-
-    // Distribute remaining seats to parties with largest remainders
-    const remainders = validParties.map(p => ({
-      p,
-      rem: (vals[p] / total) * totalSeats - Math.floor((vals[p] / total) * totalSeats),
-    })).sort((a, b) => b.rem - a.rem);
-
-    for (let i = 0; i < totalSeats - allocated; i++) {
-      seats[remainders[i].p] = (seats[remainders[i].p] || 0) + 1;
-    }
-
     return seats;
   }
 
@@ -160,8 +146,7 @@ class GameEngine {
     }
 
     this.provinces[provinceCode].campaignTokens++;
-    this.provinces[provinceCode].support[this.playerParty] =
-      Math.min(90, (this.provinces[provinceCode].support[this.playerParty] || 0) + 7);
+    this._shiftSupport(provinceCode, this.playerParty, 7, 90);
     this.cpRemaining -= cost;
     return { ok: true };
   }
@@ -172,8 +157,7 @@ class GameEngine {
   uncampaignInProvince(provinceCode) {
     if (this.provinces[provinceCode].campaignTokens <= 0) return false;
     this.provinces[provinceCode].campaignTokens--;
-    this.provinces[provinceCode].support[this.playerParty] =
-      Math.max(0, (this.provinces[provinceCode].support[this.playerParty] || 0) - 7);
+    this._shiftSupport(provinceCode, this.playerParty, -7, 90);
     this.cpRemaining += 2;
     return true;
   }
@@ -209,8 +193,7 @@ class GameEngine {
       for (const { code } of ranked) {
         if (cpLeft < 2) break;
         const bonus = this.difficulty === 'hard' ? 8 : this.difficulty === 'normal' ? 6 : 4;
-        this.provinces[code].support[party] = Math.min(90,
-          (this.provinces[code].support[party] || 0) + bonus + Math.random() * 4 - 2);
+        this._shiftSupport(code, party, bonus + Math.random() * 4 - 2, 90);
         cpLeft -= 2;
       }
     }
@@ -247,15 +230,65 @@ class GameEngine {
    * Apply a single event's effects to the province support values.
    */
   applyEvent(event) {
+    // Group all deltas by province to apply simultaneously and strictly avoid cross-contamination
+    const provDeltas = {};
+    for (const code of Object.keys(PROVINCES)) {
+      provDeltas[code] = {};
+    }
+
     for (const effect of event.effects) {
       const targets = this._resolveTargetProvinces(effect);
       for (const code of targets) {
         const partyId = this._resolveEffectParty(effect.party);
         if (!partyId) continue;
-        // Only apply BQ effects in Quebec
         if (partyId === 'BQ' && code !== 'QC') continue;
-        const current = this.provinces[code].support[partyId] || 0;
-        this.provinces[code].support[partyId] = Math.max(0, Math.min(95, current + effect.delta));
+        provDeltas[code][partyId] = (provDeltas[code][partyId] || 0) + effect.delta;
+      }
+    }
+
+    // Apply batched deltas per province
+    for (const code of Object.keys(PROVINCES)) {
+      const deltas = provDeltas[code];
+      const partiesToShift = Object.keys(deltas);
+      if (partiesToShift.length === 0) continue;
+
+      const support = this.provinces[code].support;
+      const validParties = Object.keys(PARTIES).filter(p => {
+        if (p === 'BQ' && code !== 'QC') return false;
+        if (PARTIES[p].establishedYear && this.year < PARTIES[p].establishedYear) return false;
+        return true;
+      });
+
+      let netDelta = 0;
+      for (const p of partiesToShift) {
+        if (!validParties.includes(p)) continue;
+        let d = deltas[p];
+        const oldVal = support[p] || 0;
+        if (oldVal + d > 95) d = 95 - oldVal;
+        if (oldVal + d < 0) d = -oldVal;
+        support[p] = oldVal + d;
+        netDelta += d;
+      }
+
+      // Compensate the remaining netDelta strictly against the uninvolved parties
+      const others = validParties.filter(p => !partiesToShift.includes(p));
+      let othersSum = 0;
+      for (const p of others) othersSum += Math.max(0, support[p] || 0);
+
+      if (othersSum === 0 && others.length > 0) {
+        for (const p of others) support[p] = (support[p] || 0) - (netDelta / others.length);
+      } else if (othersSum > 0) {
+        for (const p of others) support[p] -= netDelta * (Math.max(0, support[p] || 0) / othersSum);
+      }
+
+      // Clean safety pass for floating point drift
+      let finalSum = 0;
+      for (const p of validParties) {
+        support[p] = Math.max(0, support[p]);
+        finalSum += support[p];
+      }
+      if (finalSum > 0) {
+        for (const p of validParties) support[p] = (support[p] / finalSum) * 100;
       }
     }
   }
@@ -328,6 +361,59 @@ class GameEngine {
         provState.support[party] = Math.max(0, Math.min(95, current + drift + noise));
       }
     }
+    this._normalizeAll();
+  }
+
+  _normalizeAll() {
+    for (const code of Object.keys(PROVINCES)) {
+      const support = this.provinces[code].support;
+      const validParties = Object.keys(PARTIES).filter(p => {
+        if (p === 'BQ' && code !== 'QC') return false;
+        if (PARTIES[p].establishedYear && this.year < PARTIES[p].establishedYear) return false;
+        return true;
+      });
+      let sum = 0;
+      for (const p of validParties) sum += Math.max(0, support[p] || 0);
+      if (sum > 0) {
+        for (const p of validParties) support[p] = (Math.max(0, support[p] || 0) / sum) * 100;
+      }
+    }
+  }
+
+  _shiftSupport(code, party, delta, maxVal = 95) {
+    const support = this.provinces[code].support;
+    const validParties = Object.keys(PARTIES).filter(p => {
+      if (p === 'BQ' && code !== 'QC') return false;
+      if (PARTIES[p].establishedYear && this.year < PARTIES[p].establishedYear) return false;
+      return true;
+    });
+
+    if (!validParties.includes(party)) return;
+
+    const oldVal = support[party] || 0;
+    let actualDelta = delta;
+
+    if (oldVal + actualDelta > maxVal) {
+      actualDelta = maxVal - oldVal;
+    } else if (oldVal + actualDelta < 0) {
+      actualDelta = -oldVal;
+    }
+
+    if (actualDelta === 0) return;
+
+    support[party] += actualDelta;
+
+    const others = validParties.filter(p => p !== party);
+    let othersSum = 0;
+    for (const p of others) othersSum += Math.max(0, support[p] || 0);
+
+    if (othersSum === 0) {
+      if (actualDelta < 0) {
+        for (const p of others) support[p] = -actualDelta / others.length;
+      }
+    } else {
+      for (const p of others) support[p] -= actualDelta * (Math.max(0, support[p] || 0) / othersSum);
+    }
   }
 
   // ── Queries ─────────────────────────────────────────────────
@@ -346,10 +432,28 @@ class GameEngine {
   getNationalTotals() {
     const totals = {};
     for (const [code, provState] of Object.entries(this.provinces)) {
+      const validParties = Object.keys(PARTIES).filter(p => {
+        if (p === 'BQ' && code !== 'QC') return false;
+        if (PARTIES[p].establishedYear && this.year < PARTIES[p].establishedYear) return false;
+        return true;
+      });
+
+      let provSum = 0;
+      for (const p of validParties) {
+        provSum += Math.max(0, provState.support[p] || 0);
+      }
+
       for (const [party, support] of Object.entries(provState.support)) {
+        if (!validParties.includes(party)) continue;
         if (!totals[party]) totals[party] = { weightedSupport: 0, seats: 0 };
-        totals[party].weightedSupport += support * PROVINCES[code].seats;
-        totals[party].seats += this.calculateSeats(code)[party] || 0;
+        const normSupport = provSum > 0 ? (Math.max(0, support) / provSum * 100) : 0;
+        totals[party].weightedSupport += normSupport * PROVINCES[code].seats;
+      }
+
+      const pSeats = this.calculateSeats(code);
+      for (const [party, s] of Object.entries(pSeats)) {
+        if (!totals[party]) totals[party] = { weightedSupport: 0, seats: 0 };
+        totals[party].seats += s;
       }
     }
     // Convert to average percentages
@@ -367,8 +471,8 @@ class GameEngine {
     else if (s >= 2000) { grade = 'A'; comment = 'Dominant Force'; }
     else if (s >= 1500) { grade = 'B'; comment = 'Major Player'; }
     else if (s >= 1000) { grade = 'C'; comment = 'Contender'; }
-    else if (s >= 500)  { grade = 'D'; comment = 'Minor Party'; }
-    else                { grade = 'F'; comment = 'Fringe Party'; }
+    else if (s >= 500) { grade = 'D'; comment = 'Minor Party'; }
+    else { grade = 'F'; comment = 'Fringe Party'; }
     return { score: s, grade, comment, timesPM: this.timesPM, totalSeats: this.totalPlayerSeats };
   }
 }
