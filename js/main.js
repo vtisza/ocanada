@@ -326,6 +326,7 @@ function showEventCard(event) {
   document.getElementById('event-section').classList.remove('hidden');
   document.getElementById('action-buttons').classList.add('hidden');
   document.getElementById('standings-section').classList.add('hidden');
+  document.getElementById('policies-section').classList.add('hidden');
 
   document.getElementById('event-year-label').textContent = G.year;
   document.getElementById('event-title').textContent = event.title;
@@ -369,8 +370,10 @@ function enterCampaign() {
   document.getElementById('event-section').classList.add('hidden');
   document.getElementById('action-buttons').classList.remove('hidden');
   document.getElementById('standings-section').classList.remove('hidden');
+  document.getElementById('policies-section').classList.remove('hidden');
 
   updateCPDisplay();
+  updatePolicies();
   renderGame();
 
   document.getElementById('run-election-btn').onclick = triggerElection;
@@ -379,12 +382,31 @@ function enterCampaign() {
 function onProvinceClick(code, x, y) {
   if (!G || G.phase !== 'campaign') return;
 
+  if (pendingPolicyChoice) {
+    const card = pendingPolicyChoice;
+    const choice = card.requiresChoice === 'region' ? PROVINCES[code].region : code;
+
+    const result = G.playPolicyCard(card.id, choice);
+    if (!result.ok) {
+      showMessage(result.reason, 'warn');
+    } else {
+      const choiceName = card.requiresChoice === 'region' ? choice : PROVINCES[code].name;
+      showMessage(`Played ${card.name} on ${choiceName}!`, 'info');
+    }
+    pendingPolicyChoice = null;
+    updateCPDisplay();
+    updatePolicies();
+    renderGame();
+    return;
+  }
+
   const result = G.campaignInProvince(code);
   if (!result.ok) {
     showMessage(result.reason, 'warn');
     return;
   }
   updateCPDisplay();
+  updatePolicies();
   renderGame();
   showMessage(`Campaigning in ${PROVINCES[code].name}! (+7% support)`, 'info');
 
@@ -399,10 +421,77 @@ function updateCPDisplay() {
     G.cpRemaining <= 2 ? '#fc8d59' : '#7fc97f';
 }
 
+function updatePolicies() {
+  const container = document.getElementById('policies-list');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (G.phase !== 'campaign') return;
+
+  const policies = G.availablePolicies;
+  if (policies.length === 0) {
+    container.innerHTML = '<p class="cp-hint">No policies available.</p>';
+    return;
+  }
+
+  policies.forEach(card => {
+    if (G.usedPolicies.has(card.id)) return;
+
+    const div = document.createElement('div');
+    div.className = 'policy-card-ui';
+    const canAfford = G.cpRemaining >= card.cost;
+    const isPending = pendingPolicyChoice && pendingPolicyChoice.id === card.id;
+
+    if (!canAfford) div.classList.add('disabled');
+    if (isPending) div.classList.add('pending');
+
+    div.innerHTML = `
+      <div class="pol-name">${card.name} (${card.cost} CP)</div>
+      <div class="pol-desc">${card.description}</div>
+    `;
+
+    div.onclick = () => onPolicyClick(card);
+    container.appendChild(div);
+  });
+}
+
+function onPolicyClick(card) {
+  if (G.phase !== 'campaign') return;
+  if (G.cpRemaining < card.cost) {
+    showMessage('Not enough CP for ' + card.name, 'warn');
+    return;
+  }
+
+  if (card.requiresChoice) {
+    if (pendingPolicyChoice && pendingPolicyChoice.id === card.id) {
+      pendingPolicyChoice = null;
+      showMessage('Policy cancelled.', 'info');
+    } else {
+      pendingPolicyChoice = card;
+      showMessage(`Click a ${card.requiresChoice} on the map for ${card.name}!`, 'info');
+    }
+    updatePolicies();
+    return;
+  }
+
+  // Play directly
+  const res = G.playPolicyCard(card.id, null);
+  if (res.ok) {
+    showMessage(`Played ${card.name}!`, 'info');
+    pendingPolicyChoice = null;
+    updateCPDisplay();
+    updatePolicies();
+    renderGame();
+  } else {
+    showMessage(res.reason, 'warn');
+  }
+}
+
 // ── Election ──────────────────────────────────────────────────
 
 function triggerElection() {
   G.phase = 'election';
+  pendingPolicyChoice = null;
   G.runAICampaign();
   lastElectionResults = G.runElection();
   showElectionResults(lastElectionResults);

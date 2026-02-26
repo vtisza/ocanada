@@ -399,6 +399,22 @@ html, body {
 .cp-hint { font-size: 0.78rem; color: var(--text-dim); line-height: 1.5; }
 .cp-hint strong { color: var(--text-muted); }
 
+/* Policy Cards */
+.policies-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.policy-card-ui {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.policy-card-ui:hover:not(.disabled) { border-color: var(--party-color); background: rgba(255,255,255,0.08); }
+.policy-card-ui.disabled { opacity: 0.4; cursor: not-allowed; }
+.policy-card-ui.pending { border-color: #ffb366; background: rgba(255,150,0,0.15); }
+.pol-name { font-size: 0.82rem; font-weight: 700; color: #fff; margin-bottom: 2px; }
+.pol-desc { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+
 /* Event card */
 .event-card {
   background: var(--bg-card);

@@ -152,6 +152,35 @@ class GameEngine {
   }
 
   /**
+   * Play a policy card.
+   */
+  playPolicyCard(cardId, choice) {
+    const card = this.availablePolicies.find(c => c.id === cardId);
+    if (!card) return { ok: false, reason: 'Card not found.' };
+    if (this.usedPolicies.has(cardId)) return { ok: false, reason: 'Policy already used.' };
+    if (this.cpRemaining < card.cost) return { ok: false, reason: 'Not enough Campaign Points.' };
+
+    if (card.requiresChoice) {
+      if (!choice) return { ok: false, reason: 'No choice provided.' };
+    }
+
+    this.cpRemaining -= card.cost;
+    this.usedPolicies.add(cardId);
+
+    // Create a temporary event structure to apply effects
+    const fakeEvent = { effects: [] };
+    for (const eff of card.effects) {
+      const actualEff = { ...eff };
+      if (actualEff.province === 'CHOICE') actualEff.province = choice;
+      if (actualEff.region === 'CHOICE') actualEff.region = choice;
+      fakeEvent.effects.push(actualEff);
+    }
+    this.applyEvent(fakeEvent);
+
+    return { ok: true };
+  }
+
+  /**
    * Remove a campaign token from a province (refunds CP).
    */
   uncampaignInProvince(provinceCode) {
